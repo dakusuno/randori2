@@ -51,13 +51,13 @@ export class Order  {
   @Prop({type:Boolean,required:true})
   status_payment:Boolean;
 
-  @Prop( {type: mongoose.Schema.Types.ObjectId,ref:'package'})
+  @Prop( {type: mongoose.Schema.Types.ObjectId,ref:'Package'})
   package:Package;
 
-  @Prop({type: mongoose.Schema.Types.ObjectId,ref:'merchant'})
+  @Prop({type: mongoose.Schema.Types.ObjectId,ref:'Merchant'})
   merchant:Merchant;
 
-  @Prop({type: mongoose.Schema.Types.ObjectId,ref:'customer'})
+  @Prop({type: mongoose.Schema.Types.ObjectId,ref:'Customer',required : true})
   customer:Customer;
 }
 

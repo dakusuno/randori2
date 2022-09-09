@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { mongoose, ReturnModelType } from '@typegoose/typegoose';
-import { Order } from "./model/order.model";
-import { Package } from 'src/package/model/package.model';
+import { Order, OrderSchema } from "./model/order.model";
+import { Package, PackageSchema } from 'src/package/model/package.model';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { PackageModel } from "../package/model/packagemodel.model";
 import { Report } from "../report/model/report.model";
@@ -10,7 +10,7 @@ import { PaymentOrderDto } from './dto/payment-order.dto';
 import { ToBoolean } from "../toBolean";
 import { Merchant } from 'src/merchant/model/merchant.model';
 import { Customer, CustomerDocument } from 'src/customer/model/costumer.model';
-import { Model } from 'mongoose';
+import { model, Model } from 'mongoose';
 @Injectable()
 export class OrderService {
     constructor(@InjectModel(Order.name) private readonly orderModel: Model<Order>,
@@ -47,33 +47,31 @@ export class OrderService {
                 input.date_processed = currentDate
                 input.status_process = false
                 input.price = input.quantity * pack.price
-                return await new this.orderModel(input).save().then(model  =>
-                    model
-                        .populated('package')
-                        .populated('merchant')
-                        .populated('costumer')
-                        .execPopulate().then(model => {
-                            if (model.status_payment == true) {
-                                return new this.reportModel({
-                                    detail: `Order kode transaksi ${model.id}`,
+                return await new this.orderModel(input).save()
+                .then(async (resultOrder) => {
+                    const result =  await (await (await resultOrder.populate('package')).populate('merchant')).populate('customer')
+                    
+                    if(result.status_payment = true){
+                         return new this.reportModel({
+                                    detail: `Order kode transaksi ${result.id}`,
                                     is_order: true,
-                                    price: model.price,
+                                    price: result.price,
                                     date: currentDate,
                                     type_report: true,
-                                    order: model.id,
-                                    merchant: model.merchant
+                                    order: result.id,
+                                    merchant: result.merchant,
                                 }).save().then(report => {
                                     return {
-                                        order: model,
+                                        order: result,
                                         report: report
                                     }
-                                })
-                            }
-                            return {
-                                order: model
-                            }
-                        })
-                )
+                                 })
+                    }
+                    return {
+                        order:result
+                    }
+
+                })
             } catch (error) {
                 throw await new UnauthorizedException(error)
             }
@@ -89,7 +87,7 @@ export class OrderService {
                         { status_process: true, completed: currentDate },
                         { new: true }
                     )
-                    .populate('costumer')
+                    .populate('customer')
                     .populate('package')
                     .populate('merchant')
 
@@ -137,15 +135,15 @@ export class OrderService {
                 return await this.orderModel.aggregate([
                     {
                         $lookup: {
-                            from: "costumers",
-                            localField: "costumer",
+                            from: "customers",
+                            localField: "customer",
                             foreignField: "_id",
-                            as: "costumer"
+                            as: "customer"
                         }
                     },
                     {
                         $unwind: {
-                            path: "$costumer"
+                            path: "$customer"
                         }
                     },
                     {
@@ -188,10 +186,15 @@ export class OrderService {
             }
         }
     }
-    public async list(merchants, search: String, processed, taken, request): Promise<any> {
+    public async list(merchants, search?: string, processed?:boolean, taken?:boolean, request?:any): Promise<any> {
+
+     
+        
         if (search == null) {
             search = ""
         }
+
+        console.log("aaaaa")
 
         const idMerchant:string = merchants;
 
@@ -204,21 +207,22 @@ export class OrderService {
             {
                 $or: [
                     { "transaction_code": { $regex: search, $options: "i" } },
-                    { "costumer.name": { $regex: search, $options: "i" } },
+                    { "customer.name": { $regex: search, $options: "i" } },
                 ]
             }
         ]
-        if (taken != "") {
+
+        if (taken != null) {
             arrayParam.push(
                 {
-                    status_taken: new ToBoolean().changeToBoolean(taken.toString())
+                    status_taken:taken
                 }
             )
         }
-        if (processed != "") {
+        if (processed != null) {
             arrayParam.push(
                 {
-                    status_process: new ToBoolean().changeToBoolean(processed.toString())
+                    status_process: processed
                 },
             )
         }
@@ -228,15 +232,15 @@ export class OrderService {
                 return await this.orderModel.aggregate([
                     {
                         $lookup: {
-                            from: "costumers",
-                            localField: "costumer",
+                            from: "customers",
+                            localField: "customer",
                             foreignField: "_id",
-                            as: "costumer"
+                            as: "customer"
                         }
                     },
                     {
                         $unwind: {
-                            path: "$costumer"
+                            path: "$customer"
                         }
                     },
                     {
@@ -265,10 +269,18 @@ export class OrderService {
 
                 ])
             } catch (error) {
-                throw await new UnauthorizedException(error)
+                return error
             }
         }
     }
+
+
+
+
+
+
+
+
     public async detail(merchant: string, id: String, request: any): Promise<any> {
         if (this.checkMerchant(merchant, request.id)) {
             try {

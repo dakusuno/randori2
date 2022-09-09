@@ -6,6 +6,8 @@ import { ListReportDto } from "../report/dto/list-report.dto";
 import { PaymentOrderDto } from './dto/payment-order.dto';
 import { request } from 'http';
 import { IsBoolean } from 'class-validator';
+import { take } from 'rxjs';
+import { OrderQuery } from './model/order-query.model';
 @Controller('order')
 export class OrderController {
     constructor(private readonly orderService:OrderService){}
@@ -28,8 +30,8 @@ export class OrderController {
     }      
     @UseGuards(AuthGuard('jwt'))
     @Get("/:merchant")
-    public async list(@Request() request, @Param() param,@Query('search') search,@Query('processed') processed:boolean,@Query('taken') taken:boolean){
-        return await this.orderService.list(param.merchant,search,processed,taken,request)
+    public async list(@Request() request, @Param() param,@Query() query:OrderQuery){
+        return await this.orderService.list(param.merchant,query.search,query.processed,query.taken,request)
     }
     @UseGuards(AuthGuard('jwt'))
     @Get("/latest/:merchant")
