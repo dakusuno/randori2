@@ -89,7 +89,6 @@ export class OrderService {
                     )
                     .populate('customer')
                     .populate('package')
-                    .populate('merchant')
 
             } catch (error) {
                 throw await new UnauthorizedException(error)
