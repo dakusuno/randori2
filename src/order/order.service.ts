@@ -49,7 +49,7 @@ export class OrderService {
                 input.price = input.quantity * pack.price
                 return await new this.orderModel(input).save()
                 .then(async (resultOrder) => {
-                    const result =  await (await (await resultOrder.populate('package')).populate('merchant')).populate('costumer')
+                    const result =  await (await resultOrder.populate('package')).populate('costumer')
                     
                     if(result.status_payment = true){
                          return new this.reportModel({
