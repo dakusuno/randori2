@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Merchant } from 'src/merchant/model/merchant.model';
-import { Customer } from 'src/customer/model/costumer.model';
+import { Costumer } from 'src/customer/model/costumer.model';
 import mongoose from 'mongoose';
 import { Package } from 'src/package/model/package.model';
 
@@ -57,8 +57,8 @@ export class Order  {
   @Prop({type: mongoose.Schema.Types.ObjectId,ref:'Merchant'})
   merchant:Merchant;
 
-  @Prop({type: mongoose.Schema.Types.ObjectId,ref:'Customer',required : true})
-  customer:Customer;
+  @Prop({type: mongoose.Schema.Types.ObjectId,ref:'Costumer',required : true})
+  costumer:Costumer;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);

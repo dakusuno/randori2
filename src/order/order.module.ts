@@ -9,13 +9,13 @@ import { Package, PackageSchema } from 'src/package/model/package.model';
 import { Report, ReportSchema } from 'src/report/model/report.model';
 import { ReportModule } from 'src/report/report.module';
 import { Merchant, MerchantSchema } from 'src/merchant/model/merchant.model';
-import { Customer, CustomerSchema } from 'src/customer/model/costumer.model';
+import { Costumer, CustomerSchema } from 'src/customer/model/costumer.model';
 @Module({
   imports:[
     MongooseModule.forFeature([{name:Order.name,schema:OrderSchema}]),
     MongooseModule.forFeature([{name:Report.name,schema:ReportSchema}]),
     MongooseModule.forFeature([{name:Package.name,schema:PackageSchema}]),
-    MongooseModule.forFeature([{name:Customer.name,schema:CustomerSchema}]),
+    MongooseModule.forFeature([{name:Costumer.name,schema:CustomerSchema}]),
     MongooseModule.forFeature([{name:Merchant.name,schema:MerchantSchema}]),
     PackageModule,
     PackageModule,

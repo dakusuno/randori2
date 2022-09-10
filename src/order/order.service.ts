@@ -9,14 +9,14 @@ import { Report } from "../report/model/report.model";
 import { PaymentOrderDto } from './dto/payment-order.dto';
 import { ToBoolean } from "../toBolean";
 import { Merchant } from 'src/merchant/model/merchant.model';
-import { Customer, CustomerDocument } from 'src/customer/model/costumer.model';
+import { Costumer, CustomerDocument } from 'src/customer/model/costumer.model';
 import { model, Model } from 'mongoose';
 @Injectable()
 export class OrderService {
     constructor(@InjectModel(Order.name) private readonly orderModel: Model<Order>,
         @InjectModel(Package.name) private readonly packageModel:Model<Package>,
         @InjectModel(Report.name) private readonly reportModel: Model<Report>,
-        @InjectModel(Customer.name) private customerModel: Model<CustomerDocument>,
+        @InjectModel(Costumer.name) private costumerModel: Model<Costumer>,
         @InjectModel(Merchant.name) private readonly merchantModel: Model<Merchant>,
     ) { }
 
@@ -49,7 +49,7 @@ export class OrderService {
                 input.price = input.quantity * pack.price
                 return await new this.orderModel(input).save()
                 .then(async (resultOrder) => {
-                    const result =  await (await (await resultOrder.populate('package')).populate('merchant')).populate('customer')
+                    const result =  await (await (await resultOrder.populate('package')).populate('merchant')).populate('costumer')
                     
                     if(result.status_payment = true){
                          return new this.reportModel({
@@ -87,9 +87,9 @@ export class OrderService {
                         { status_process: true, completed: currentDate },
                         { new: true }
                     )
-                    .populate('customer')
+                    .populate('costumer')
                     .populate('package')
-
+                    .populate('merchant')   
             } catch (error) {
                 throw await new UnauthorizedException(error)
             }
@@ -134,15 +134,15 @@ export class OrderService {
                 return await this.orderModel.aggregate([
                     {
                         $lookup: {
-                            from: "customers",
-                            localField: "customer",
+                            from: "costumers",
+                            localField: "costumer",
                             foreignField: "_id",
-                            as: "customer"
+                            as: "costumer"
                         }
                     },
                     {
                         $unwind: {
-                            path: "$customer"
+                            path: "$costumer"
                         }
                     },
                     {
@@ -193,7 +193,6 @@ export class OrderService {
             search = ""
         }
 
-        console.log("aaaaa")
 
         const idMerchant:string = merchants;
 
@@ -206,7 +205,7 @@ export class OrderService {
             {
                 $or: [
                     { "transaction_code": { $regex: search, $options: "i" } },
-                    { "customer.name": { $regex: search, $options: "i" } },
+                    { "costumer.name": { $regex: search, $options: "i" } },
                 ]
             }
         ]
@@ -231,15 +230,15 @@ export class OrderService {
                 return await this.orderModel.aggregate([
                     {
                         $lookup: {
-                            from: "customers",
-                            localField: "customer",
+                            from: "costumers",
+                            localField: "costumer",
                             foreignField: "_id",
-                            as: "customer"
+                            as: "costumer"
                         }
                     },
                     {
                         $unwind: {
-                            path: "$customer"
+                            path: "$costumer"
                         }
                     },
                     {

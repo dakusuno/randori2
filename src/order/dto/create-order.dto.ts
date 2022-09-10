@@ -42,5 +42,5 @@ export class CreateOrderDto {
     merchant: string
 
     @IsNotEmpty()
-    customer:string
+    costumer:string
 }

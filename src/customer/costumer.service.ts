@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import {  Customer, CustomerDocument } from './model/costumer.model';
+import {  Costumer, CustomerDocument } from './model/costumer.model';
 import { CreateCustomerDto } from './dto/create-costumer.dto';
 import { UpdateCostumerDto } from './dto/update-costumer.dto';
 import { Model } from 'mongoose';
@@ -8,7 +8,7 @@ import { MerchantService } from 'src/merchant/merchant.service';
 
 @Injectable()
 export class CostumerService {
-    constructor(@InjectModel(Customer.name) private customerModel: Model<CustomerDocument>,private merchantService:MerchantService) {}
+    constructor(@InjectModel(Costumer.name) private customerModel: Model<CustomerDocument>,private merchantService:MerchantService) {}
 
     public async create(input: CreateCustomerDto, param) {
         if (this.merchantService.isExist(input.merchant, param.id)) {

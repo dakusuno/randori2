@@ -19,7 +19,7 @@
 // });
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Merchant } from 'src/merchant/model/merchant.model';
-import { Customer } from 'src/customer/model/costumer.model';
+import { Costumer } from 'src/customer/model/costumer.model';
 import mongoose from 'mongoose';
 import { Package } from 'src/package/model/package.model';
 
