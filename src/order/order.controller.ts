@@ -31,6 +31,8 @@ export class OrderController {
     @UseGuards(AuthGuard('jwt'))
     @Get("/:merchant")
     public async list(@Request() request, @Param() param,@Query() query:OrderQuery){
+        console.log(param)
+
         return await this.orderService.list(param.merchant,query.search,query.processed,query.taken,request)
     }
     @UseGuards(AuthGuard('jwt'))

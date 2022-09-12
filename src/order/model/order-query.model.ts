@@ -2,9 +2,9 @@
 
 export class OrderQuery{
 
-    processed?:boolean;
+    processed?:string;
 
-    taken?:boolean;
+    taken?:string;
 
     search?:string = '';
 

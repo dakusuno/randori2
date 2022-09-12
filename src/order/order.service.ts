@@ -185,9 +185,11 @@ export class OrderService {
             }
         }
     }
-    public async list(merchants, search?: string, processed?:boolean, taken?:boolean, request?:any): Promise<any> {
+    public async list(merchants, search?: string, mProcessed?:string, mTaken?:string, request?:any): Promise<any> {
+        
+        const taken = this.toBoolean(mTaken)
 
-     
+        const processed = this.toBoolean(mProcessed)
         
         if (search == null) {
             search = ""
@@ -213,7 +215,7 @@ export class OrderService {
         if (taken != null) {
             arrayParam.push(
                 {
-                    status_taken:taken
+                    status_taken:false
                 }
             )
         }
@@ -281,57 +283,7 @@ export class OrderService {
 
     public async detail(merchant: string, id: String, request: any): Promise<any> {
         if (this.checkMerchant(merchant, request.id)) {
-
             return (await (await this.orderModel.findById(id)).populate('costumer')).populate('package');
-            // try {
-            //     return await this.orderModel.aggregate([
-            //         {
-            //             $lookup: {
-            //                 from: "costumers",
-            //                 localField: "costumer",
-            //                 foreignField: "_id",
-            //                 as: "costumer"
-            //             }
-            //         },
-            //         {
-            //             $unwind: {
-            //                 path: "$costumer"
-            //             }
-            //         },
-            //         {
-            //             $lookup: {
-            //                 from: "packages",
-            //                 localField: "package",
-            //                 foreignField: "_id",
-            //                 as: "package"
-            //             }
-            //         },
-            //         {
-            //             $unwind: {
-            //                 path: "$package"
-            //             }
-            //         },
-            //         {
-
-            //             $match:
-            //             {
-            //                 $and: [
-            //                     {
-            //                         merchant: merchant
-            //                     },
-            //                     {
-            //                         _id:id
-            //                     }
-            //                 ]
-            //             }
-            //         }
-
-            //     ]).then((res)=>{
-            //         return res[0]
-            //     })
-            // } catch (error) {
-            //     throw await new UnauthorizedException(error)
-            // }
         }
     }
     public async setTaken(merchant: string, id: String, request): Promise<any> {
@@ -426,6 +378,19 @@ export class OrderService {
                 })
         } catch (error) {
             throw new UnauthorizedException(error);
+        }
+    }
+
+    public toBoolean?(text?:string):boolean{
+        const lower = text?.toLowerCase();
+
+        switch (lower) {
+            case "true":
+                return true
+            case "false":
+                return false
+            default:
+                return null
         }
     }
 }
