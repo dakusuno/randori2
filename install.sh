@@ -1,5 +1,5 @@
 #!/bin/sh
-git pull origin master
+git pull origin main
 rm -rf /dist
 nest build
 pm2 delete 0

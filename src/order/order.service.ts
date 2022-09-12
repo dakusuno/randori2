@@ -281,55 +281,57 @@ export class OrderService {
 
     public async detail(merchant: string, id: String, request: any): Promise<any> {
         if (this.checkMerchant(merchant, request.id)) {
-            try {
-                return await this.orderModel.aggregate([
-                    {
-                        $lookup: {
-                            from: "costumers",
-                            localField: "costumer",
-                            foreignField: "_id",
-                            as: "costumer"
-                        }
-                    },
-                    {
-                        $unwind: {
-                            path: "$costumer"
-                        }
-                    },
-                    {
-                        $lookup: {
-                            from: "packages",
-                            localField: "package",
-                            foreignField: "_id",
-                            as: "package"
-                        }
-                    },
-                    {
-                        $unwind: {
-                            path: "$package"
-                        }
-                    },
-                    {
 
-                        $match:
-                        {
-                            $and: [
-                                {
-                                    merchant: merchant
-                                },
-                                {
-                                    _id:id
-                                }
-                            ]
-                        }
-                    }
+            return (await (await this.orderModel.findById(id)).populate('costumer')).populate('package');
+            // try {
+            //     return await this.orderModel.aggregate([
+            //         {
+            //             $lookup: {
+            //                 from: "costumers",
+            //                 localField: "costumer",
+            //                 foreignField: "_id",
+            //                 as: "costumer"
+            //             }
+            //         },
+            //         {
+            //             $unwind: {
+            //                 path: "$costumer"
+            //             }
+            //         },
+            //         {
+            //             $lookup: {
+            //                 from: "packages",
+            //                 localField: "package",
+            //                 foreignField: "_id",
+            //                 as: "package"
+            //             }
+            //         },
+            //         {
+            //             $unwind: {
+            //                 path: "$package"
+            //             }
+            //         },
+            //         {
 
-                ]).then((res)=>{
-                    return res[0]
-                })
-            } catch (error) {
-                throw await new UnauthorizedException(error)
-            }
+            //             $match:
+            //             {
+            //                 $and: [
+            //                     {
+            //                         merchant: merchant
+            //                     },
+            //                     {
+            //                         _id:id
+            //                     }
+            //                 ]
+            //             }
+            //         }
+
+            //     ]).then((res)=>{
+            //         return res[0]
+            //     })
+            // } catch (error) {
+            //     throw await new UnauthorizedException(error)
+            // }
         }
     }
     public async setTaken(merchant: string, id: String, request): Promise<any> {
